@@ -130,8 +130,12 @@ public class MoveFactory {
         String editMoveStr = moveStr.toString();
     	PositionCoordinate firstCoordinate;
         PositionCoordinate lastCoordinate;
-        String figureStr;
+        String figureStr = "";
         boolean isEn = false;
+        boolean isHitFigure = false;
+        String pawnConversion = "";
+        ConditionCoordinateStr firstCoordinateCC = new ConditionCoordinateStr(ConditionCoordinateStr.TYPE.NULL, "", editMoveStr);
+        ConditionCoordinateStr lastCoordinateCC = new ConditionCoordinateStr(ConditionCoordinateStr.TYPE.NULL, "", editMoveStr);
         boolean isCastling;
         boolean isShortCastling;
         
@@ -152,68 +156,71 @@ public class MoveFactory {
         
         //White, Black
         Boolean isWhite;
-    	String isWhiteStr = moveStr.substring(1,2);
+    	String isWhiteStr = editMoveStr.substring(0,1);
     	switch (isWhiteStr) {
-    	case "W": isWhite = true; editMoveStr.replaceFirst("W", ""); break;
-    	case "w": isWhite = true; editMoveStr.replaceFirst("w", ""); moveStr = moveStr.replaceFirst("w", "W"); break;
-    	case "B": isWhite = false; editMoveStr.replaceFirst("B", ""); break;
-    	case "b": isWhite = false; editMoveStr.replaceFirst("b", ""); moveStr = moveStr.replaceFirst("b", "B"); break;
-    	default: System.out.println("Exception: " + isWhiteStr + " is not a Valid input"); System.out.println("isWhite is set to true."); isWhite=true;
+    	case "W": isWhite = true; editMoveStr = editMoveStr.substring(1); break;
+    	case "w": isWhite = true; editMoveStr = editMoveStr.substring(1); moveStr = moveStr.replaceFirst("w", "W"); break;
+    	case "B": isWhite = false; editMoveStr = editMoveStr.substring(1); break;
+    	case "b": isWhite = false; editMoveStr = editMoveStr.substring(1); moveStr = moveStr.replaceFirst("b", "B"); break;
+    	default: System.out.println("Exception: " + isWhiteStr + " is not a Valid input"); System.out.println("isWhite is set to null."); isWhite=null;
     	}
     	
     	isCastling = false;
     	isShortCastling = false;
-    	if (moveStr.substring(1).equals("O-O") || moveStr.substring(1).equals("o-o") || moveStr.substring(1).equals("0-0")) {
+    	if (editMoveStr.equals("O-O") || editMoveStr.equals("o-o") || editMoveStr.equals("0-0")) {
     		//Kurze Rochade
     		isCastling = true;
     		isShortCastling = true;
+    		figureStr = "K";
+    		editMoveStr = "";
     	}
-    	if (moveStr.substring(1).equals("O-O-O") || moveStr.substring(1).equals("o-o-o") || moveStr.substring(1).equals("0-0-0")) {
+    	if (moveStr.equals("O-O-O") || moveStr.equals("o-o-o") || moveStr.equals("0-0-0")) {
     		//lange Rochade
     		isCastling = true;
+    		figureStr = "K";
+    		editMoveStr = "";
     	}
     	
+    	if (editMoveStr.length() > 0) {
             figureStr = editMoveStr.substring(0,1);
             
             switch (figureStr) {
-        	case "Q": isWhite = true; editMoveStr.replaceFirst("Q", ""); break;
-        	case "D": isWhite = true; editMoveStr.replaceFirst("D", ""); moveStr = moveStr.replaceFirst("D", "Q"); break;
-        	case "R": isWhite = false; editMoveStr.replaceFirst("R", ""); break;
-        	case "T": isWhite = false; editMoveStr.replaceFirst("T", ""); moveStr = moveStr.replaceFirst("T", "R"); break;
-        	case "N": isWhite = false; editMoveStr.replaceFirst("N", ""); break;
-        	case "S": isWhite = false; editMoveStr.replaceFirst("S", ""); moveStr = moveStr.replaceFirst("S", "N"); break;
-        	case "B": isWhite = false; editMoveStr.replaceFirst("B", ""); break;
-        	case "L": isWhite = false; editMoveStr.replaceFirst("L", ""); moveStr = moveStr.replaceFirst("L", "B"); break;
-        	case "K": isWhite = false; editMoveStr.replaceFirst("K", ""); break;
-        	case "P": isWhite = false; editMoveStr.replaceFirst("P", ""); break;
-        	case " ": isWhite = false; editMoveStr.replaceFirst(" ", ""); moveStr = moveStr.replaceFirst(" ", "P"); break;        	
+        	case "Q": editMoveStr = editMoveStr.substring(1); break;
+        	case "D": editMoveStr = editMoveStr.substring(1); moveStr = moveStr.replaceFirst("D", "Q"); break;
+        	case "R": editMoveStr = editMoveStr.substring(1); break;
+        	case "T": editMoveStr = editMoveStr.substring(1); moveStr = moveStr.replaceFirst("T", "R"); break;
+        	case "N": editMoveStr = editMoveStr.substring(1); break;
+        	case "S": editMoveStr = editMoveStr.substring(1); moveStr = moveStr.replaceFirst("S", "N"); break;
+        	case "B": editMoveStr = editMoveStr.substring(1); break;
+        	case "L": editMoveStr = editMoveStr.substring(1); moveStr = moveStr.replaceFirst("L", "B"); break;
+        	case "K": editMoveStr = editMoveStr.substring(1); break;
+        	case "P": editMoveStr = editMoveStr.substring(1); break;
+        	case " ": editMoveStr = editMoveStr.substring(1); moveStr = moveStr.replaceFirst(" ", "P"); figureStr = "P"; break;        	
         	default: System.out.println("Exception: " + figureStr + " is not a Valid input or Pawn"); figureStr="P"; System.out.println("figureStr is set to P");
         	}
             
-            String pawnConversion = "";
-            if (figureStr == "P" && editMoveStr.length() > 0) {
+            if (figureStr.equals("P") && editMoveStr.length() > 0) {
             	//isEn = (editMoveStr.substring(editMoveStr.length() - 3).equals("en")) ? true: false; 
-            	if ( editMoveStr.substring(editMoveStr.length() - 3).equals("en")) { //-2 oder -3?
+            	System.out.println(editMoveStr + ", " + editMoveStr.length());
+            	if (editMoveStr.substring(editMoveStr.length() - 2).equals("en")) { //-2 oder -3?
             		isEn = true;
             		editMoveStr = editMoveStr.substring(0, editMoveStr.length() - 3); //-2 oder -3?
             	}
             		
-            	if (editMoveStr.substring(editMoveStr.length() - 3, editMoveStr.length() - 2).equals("-")) {
+            	if (editMoveStr.substring(editMoveStr.length() - 2, editMoveStr.length() - 1).equals("-")) {
             		pawnConversion = editMoveStr.substring(editMoveStr.length() - 1); //Switch to get Exceptions?
-            		editMoveStr = editMoveStr.substring(0, editMoveStr.length() - 3);
+            		editMoveStr = editMoveStr.substring(0, editMoveStr.length() - 2);
             	}
             }
             
             //lastCoordinate
-            ConditionCoordinateStr lastCoordinateCC = getCoordinateStr(editMoveStr, editMoveStr.length() - 2); //Rc3xc5 length = 6; c5: (length - 2,length - 1)
+            lastCoordinateCC = getCoordinateStr(editMoveStr, editMoveStr.length() - 2); //Rc3xc5 length = 6; c5: (length - 2,length - 1)
             editMoveStr = lastCoordinateCC.getEditMoveStr();
-            
-            ConditionCoordinateStr firstCoordinateCC = new ConditionCoordinateStr(ConditionCoordinateStr.TYPE.NULL, "", editMoveStr);
-            boolean isHitFigure = false;
+
             if (editMoveStr.length() > 0) {
-	            if ((editMoveStr.substring(0, 1).equals("x") || editMoveStr.substring(0, 1).equals("X")) ) {
+	            if ((editMoveStr.substring(editMoveStr.length() - 1).equals("x") || editMoveStr.substring(0, 1).equals("X")) ) {
 	            	isHitFigure = true;
-	            	editMoveStr = editMoveStr.substring(0, editMoveStr.length() - 2);
+	            	editMoveStr = editMoveStr.substring(0, editMoveStr.length() - 1);
 	            }
 	            
 	            //Bedingungen firstCoordinate
@@ -223,39 +230,68 @@ public class MoveFactory {
             }
 
             //get firstPositionCoordinate
-            
+    	}
             
             String firstCoordinateStr = "";
             //firstCoordinate
             if (isAddFigure == false) {
             	List <Move> possibleMoves = schachbrett.getAllMoves();
-            	for (Move move: possibleMoves) {
-            		//Enum conditionFirstCoordinateStrType == NULL, ROW, COL, ROWCOL
-            		//Type == NULL: move.goalCoordinate = goalCoordinate
-            		//Type == ROW, COL, ROWCOL move.goalCoordinate = goalCoordinate if move.goalCoordinate.contains(Value of(ROW, COL, ROWCOL))
-            		boolean valid = false;
-            		switch (firstCoordinateCC.getType()) { //prüfen ob es noch weitere mögliche Züge gibt und wenn Fehler ausgeben?
-	            	case NULL:
-	            		valid = validate(figureStr, isAddFigure, isWhite, isCastling, isShortCastling, isEn, pawnConversion,
-								firstCoordinateCC, isHitFigure, move);
-	            	case ROW:
-	            		if (move.getLastPosition().getCoordinate().equals(firstCoordinateCC.getCoordinateStr()) && move.getLastPosition().getRow().toString().equals(firstCoordinateCC.getCoordinateStr())) {
-	            			valid = validate(figureStr, isAddFigure, isWhite, isCastling, isShortCastling, isEn, pawnConversion,
-									firstCoordinateCC, isHitFigure, move);
-            			}
-	            	case COL:
-	            		if (move.getLastPosition().getCoordinate().equals(firstCoordinateCC.getCoordinateStr()) && move.getLastPosition().getCol().toString().equals(firstCoordinateCC.getCoordinateStr())) {
-	            		valid = validate(figureStr, isAddFigure, isWhite, isCastling, isShortCastling, isEn, pawnConversion,
-								firstCoordinateCC, isHitFigure, move);
-            			}
-	            	case ROWCOL:
-	            		if (move.getLastPosition().getCoordinate().equals(firstCoordinateCC.getCoordinateStr()) && move.getLastPosition().getCoordinate().equals(firstCoordinateCC.getCoordinateStr())) {
-	            		valid = validate(figureStr, isAddFigure, isWhite, isCastling, isShortCastling, isEn, pawnConversion,
-								firstCoordinateCC, isHitFigure, move);
-            			}
+//            	List <Move> possibleMoves = schachbrett.getMoves(Position.getCoordinate(firstCoordinateCC.getCoordinateStr()), false);
+            	if (isCastling == false) {
+	            	for (Move move: possibleMoves) {
+	            		//Enum conditionFirstCoordinateStrType == NULL, ROW, COL, ROWCOL
+	            		//Type == NULL: move.goalCoordinate = goalCoordinate
+	            		//Type == ROW, COL, ROWCOL move.goalCoordinate = goalCoordinate if move.goalCoordinate.contains(Value of(ROW, COL, ROWCOL))
+	            		boolean valid = false;
+	            		switch (firstCoordinateCC.getType()) { //prüfen ob es noch weitere mögliche Züge gibt und wenn Fehler ausgeben?
+		            	case NULL:
+		            		valid = validate(figureStr, isAddFigure, isWhite, isCastling, isShortCastling, isEn, pawnConversion,
+									firstCoordinateCC, lastCoordinateCC, isHitFigure, move);
+		            	case ROW:
+		            		if (move.getLastPosition().getCoordinateB() == lastCoordinateCC.getCoordinateStr() && move.getFirstPosition().getRow().toString() == firstCoordinateCC.getCoordinateStr()) {
+		            			valid = validate(figureStr, isAddFigure, isWhite, isCastling, isShortCastling, isEn, pawnConversion,
+										firstCoordinateCC, lastCoordinateCC, isHitFigure, move);
+	            			}
+		            	case COL:
+		            		if (move.getLastPosition().getCoordinateB() == lastCoordinateCC.getCoordinateStr() && move.getFirstPosition().getCol().toString() == firstCoordinateCC.getCoordinateStr()) {
+		            		valid = validate(figureStr, isAddFigure, isWhite, isCastling, isShortCastling, isEn, pawnConversion,
+									firstCoordinateCC, lastCoordinateCC, isHitFigure, move);
+	            			}
+		            	case ROWCOL:
+		            		if (move.getLastPosition().getCoordinateB().equals(lastCoordinateCC.getCoordinateStr()) && move.getFirstPosition().getCoordinateB().equals(firstCoordinateCC.getCoordinateStr())) {
+		            		valid = validate(figureStr, isAddFigure, isWhite, isCastling, isShortCastling, isEn, pawnConversion,
+									firstCoordinateCC, lastCoordinateCC, isHitFigure, move);
+	            			}
+		            	}
+	            		if (valid) {
+	            			return move;
+	            		}
 	            	}
-            		if (valid) {
-            			return move;
+            	}
+            	else {
+            		for (Move move : possibleMoves) {
+            			if (move.isCastling()== isCastling && move.isShortCastling() == isShortCastling) {
+            				if (isWhite == null) {
+            					Boolean activeColor = schachbrett.getActiveColor();
+            					if (activeColor == null) {
+            						System.out.println(new Exception("activeColor == null, keine Prüfung nach weiteren möglichen Zügen!"));
+            						//validate() ?
+            						return move;
+            					}
+            					else {
+            						//validate() ?
+            						if (move.isWhite() == isWhite) {
+            							//validate() ?
+            							return move;
+            						}
+            					}
+            					
+            				}
+            				else if (move.isWhite() == isWhite) {
+            					//validate() ?
+            					return move;
+            				}
+            			}
             		}
             	}
 //            if (editMoveStr.substring(0, 1).equals())
@@ -280,23 +316,36 @@ public class MoveFactory {
     }
 
 	private static boolean validate(String figureStr, boolean isAddFigure, Boolean isWhite, boolean isCastling,
-			boolean isShortCastling, boolean isEn, String pawnConversion, ConditionCoordinateStr firstCoordinateCC,
+			boolean isShortCastling, boolean isEn, String pawnConversion, ConditionCoordinateStr firstCoordinateCC, ConditionCoordinateStr lastCoordinateCC,
 			boolean isHitFigure, Move move) {
 		boolean valid = false;
-		if (move.getLastPosition().getCoordinate().equals(firstCoordinateCC.getCoordinateStr())) {
+		if (move.getLastPosition().getCoordinateB().equals(lastCoordinateCC.getCoordinateStr())) {
 			//test andere Eigenschaften von Move??
 			//take Move or firstPosition??
 			//figureStr, firstCoordinate, lastCoordinate, isAddFigure, isWhite !null, Rochade (kurz, lang), isEn, pawnConversion, isHitFigure
 			valid = true;
-			if ((move.getFigure().equals(figureStr) && move.isAddFigure() == isAddFigure && move.isEn() == isEn && move.getPawnConversion().equals(pawnConversion) && move.isHitFigure() == isHitFigure)) {
-				if (isWhite != null) {
-					if (move.isWhite() != (boolean) isWhite) {
-						valid = false;
-					}
-				}
-				if (move.isCastling() != isCastling || move.isShortCastling() != isShortCastling) {
+			if ((!move.getFigure().equals(figureStr) )) {
+				valid = false;
+			}
+			if (move.isAddFigure() != isAddFigure) {
+				valid = false;
+			}
+			if (move.isEn() != isEn) {
+				valid = false;
+			}
+			if (!move.getPawnConversion().equals(pawnConversion)) {
+				valid = false;
+			}
+			if (move.isHitFigure() != isHitFigure) {
+				valid = false;
+			}
+			if (isWhite != null) {
+				if (move.isWhite() != (boolean) isWhite) {
 					valid = false;
 				}
+			}
+			if (move.isCastling() != isCastling || move.isShortCastling() != isShortCastling) {
+				valid = false;
 			}
 		}
 		return valid;
@@ -325,13 +374,19 @@ public class MoveFactory {
 		
 	    if (isCol) {
 	    	if (editMoveStr.length() > beginIndex) { //> beginIndex + 1?
-	    		editMoveStr = editMoveStr.substring(0, beginIndex - 1) + editMoveStr.substring(beginIndex + 1);
+	    		if (beginIndex > 0) {
+	    			editMoveStr = editMoveStr.substring(0, beginIndex) + editMoveStr.substring(beginIndex + 1);
+	    		}
+	    		else {
+	    			editMoveStr = editMoveStr.substring(beginIndex + 1);
+	    		}
 	    	}
+	    		
 	    	else {
-	    		editMoveStr = editMoveStr.substring(0, beginIndex - 1);
+	    		editMoveStr = editMoveStr.substring(0, beginIndex + 1);
 	    	}
     	}
-		
+	    editConditionFirstCoordinate = editMoveStr.substring(beginIndex, beginIndex + 1);
 	    switch (editConditionFirstCoordinate) {
 		case "1": conditionFirstCoordinate = conditionFirstCoordinate + "1"; isRow = true; break;
 		case "2": conditionFirstCoordinate = conditionFirstCoordinate + "2"; isRow = true; break;
@@ -344,6 +399,24 @@ public class MoveFactory {
 		default: System.out.println("Exception: " + conditionFirstCoordinate + " is not a Valid input");
 	    }
 		
+	    if (isRow) {
+	    	if (editMoveStr.length() > beginIndex) { //> beginIndex + 1?
+	    		if (beginIndex > 0) {
+	    			editMoveStr = editMoveStr.substring(0, beginIndex) + editMoveStr.substring(beginIndex + 1);
+	    		}
+	    		else {
+	    			editMoveStr = editMoveStr.substring(beginIndex + 1);
+	    		}
+	    	}
+	    		
+	    	else if (editMoveStr.length() != 1){
+	    		editMoveStr = editMoveStr.substring(0, beginIndex + 1);
+	    	}
+	    	else {
+	    		editMoveStr = "";
+	    	}
+    	}
+	    
 	    if (!isRow && !isCol) {
 	    	return new ConditionCoordinateStr(ConditionCoordinateStr.TYPE.NULL, conditionFirstCoordinate, editMoveStr);
 	    }
@@ -360,6 +433,11 @@ public class MoveFactory {
 	}
 	
 	static class ConditionCoordinateStr {
+		@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return super.toString();
+		}
 		private enum TYPE{
 			NULL,
 			ROW,

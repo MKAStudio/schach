@@ -10,7 +10,8 @@ public class Schachbrett {
     private History history;
     Figure activeFigure = null; //Liste aller Figuren auf dem Schachbrett.
     Figure[][] schachbrett = new Figure[8][8]; //Liste aller Felder auf dem Schachfeld, jede Figur Speichert ihre Farbe Selber, Liste enthält verweise zu den Figuren. (Ueber ID?)
-
+    private Boolean activeColor = null;
+    
     public Schachbrett() {
         history = new History();
     }
@@ -280,7 +281,13 @@ public class Schachbrett {
     		for (int y = 0; y < 8; y++) {
     			Figure figure = schachbrett[x][y];
     			if (figure != null && figure != baseFigure && figure.isColorWhite() != isWhite) {
-    				List<Move> moves = figure.getMoves(true); //Ruft Alle Figuren auf, bei getCheck auch den König!!!!!
+    				List<Move> moves;
+    				if (figure.getFigureType() == "K") {
+    					moves = figure.getMovesWithoutCastling(true, true);
+    				}
+    				else {
+    					moves = figure.getMoves(true); //Ruft Alle Figuren auf, bei getCheck auch den König!!!!!
+    				}
     				for (Move move: moves) {
     					PositionCoordinate field = move.getLastPosition(); 
     					if (!fields.contains(field)) {
@@ -327,5 +334,14 @@ public class Schachbrett {
     		}
     	}
     	return moves;
+    }
+    
+    public void setActiveColor(Boolean newActiveColor) {
+    	//activeColor: Spieler der gerade an der Reihe ist. null wenn kein Spiel läuft.
+    	this.activeColor = newActiveColor;
+    }
+    public Boolean getActiveColor() {
+    	//returns Spieler der gerade am Zug ist. null, wenn kein Spiel läuft.
+    	return this.activeColor;
     }
 }

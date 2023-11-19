@@ -16,7 +16,16 @@ public class Move {
     //Pawn
     private boolean isEn = false;
     private boolean isDoubleMove = false;
-    private String pawnConversion = null;
+    private String pawnConversion = "";
+    
+    public Move(String moveStr, String figure, boolean isWhite, PositionCoordinate firstPosition, PositionCoordinate lastPosition) {
+        this.moveStr = moveStr;
+        this.figure = figure;
+        this.isWhite = isWhite;
+        AddFigure = false;
+        this.firstPosition = firstPosition;
+        this.lastPosition = lastPosition;
+    }
     
     public Move(String moveStr, String figure, PositionCoordinate firstPosition, PositionCoordinate lastPosition) {
         this.moveStr = moveStr;
@@ -125,10 +134,35 @@ public class Move {
         this.isEn = false;
     }
     
+    public Move(String moveStr, String figure, boolean isWhite, PositionCoordinate firstPosition, PositionCoordinate lastPosition, boolean isHitFigure) {
+        this.moveStr = moveStr;
+        this.figure = figure;
+        this.isWhite = isWhite;
+        AddFigure = false;
+        this.firstPosition = firstPosition;
+        this.lastPosition = lastPosition;
+        this.isHitFigure = isHitFigure;
+        this.isEn = false;
+    }
+    
     public Move(String moveStr, String figure, PositionCoordinate firstPosition, PositionCoordinate lastPosition, boolean isHitFigure, boolean isEn, boolean isDoubleMove, String pawnConversion) {
         //Pawn
     	this.moveStr = moveStr;
         this.figure = figure;
+        AddFigure = false;
+        this.firstPosition = firstPosition;
+        this.lastPosition = lastPosition;
+        this.isHitFigure = isHitFigure;
+        this.isEn = isEn;
+        this.isDoubleMove = isDoubleMove;
+        this.pawnConversion = pawnConversion;
+    }
+    
+    public Move(String moveStr, String figure, boolean isWhite, PositionCoordinate firstPosition, PositionCoordinate lastPosition, boolean isHitFigure, boolean isEn, boolean isDoubleMove, String pawnConversion) {
+        //Pawn
+    	this.moveStr = moveStr;
+        this.figure = figure;
+        this.isWhite = isWhite;
         AddFigure = false;
         this.firstPosition = firstPosition;
         this.lastPosition = lastPosition;

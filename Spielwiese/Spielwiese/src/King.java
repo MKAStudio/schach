@@ -5,10 +5,15 @@ public class King extends Figure {
     public King(PositionCoordinate aktuellePositionCoordinate, boolean isColorWhite, Schachbrett surface) {
         super(aktuellePositionCoordinate, isColorWhite, "K", surface);
     }
-  
+    
     @Override
-    public List<Move> getMoves(boolean ignoreColor) {
-		List <Move> moves = super.getMoves(ignoreColor);
+    public List<Move> getMovesWithoutCastling(boolean ignoreColor, boolean ignoreAttackedFields) {
+    	return super.getMoves(ignoreColor, ignoreAttackedFields);
+    }
+    
+    @Override
+    public List<Move> getMoves(boolean ignoreColor, boolean ignoreAttackedFields) {
+		List <Move> moves = super.getMoves(ignoreColor, ignoreAttackedFields);
     	Schachbrett surface = getSurface();
     	if (!isMoved()) {
     		if (isColorWhite()) {
@@ -65,10 +70,11 @@ public class King extends Figure {
 
 	private List<Move> setMoveCastling(List<Move> moves, Schachbrett surface, int color, List<PositionCoordinate> goalFields, List<PositionCoordinate> goalFieldsKing, PositionCoordinate goalFieldRook, boolean isShortCastling) {
 		if (validateCastling(goalFields, goalFieldsKing, goalFieldRook, surface)) {
-			int castling = isShortCastling? 2 : 6;
-			Move move = new Move(getFigureType() + getPosition().getCoordinate() + new PositionCoordinate(castling, color).getCoordinate(), getFigureType(), getPosition(), new PositionCoordinate(castling, color));
+			int castling = isShortCastling? 6 : 2;
+			Move move = new Move(getFigureType() + getPosition().getCoordinate() + new PositionCoordinate(castling, color).getCoordinate(), getFigureType(), isColorWhite(), getPosition(), new PositionCoordinate(castling, color));
 			move.setIsCastling(true, isShortCastling);
 			moves.add(move);
+			System.out.println("King.getMoves.setMoveCastling: " + "isCastling==true, isShortCastling==" + isShortCastling + ", move==" + move);
 		}
 		return moves;
 	}
@@ -123,19 +129,31 @@ public class King extends Figure {
     }
     
     @Override
-    protected boolean handlePosition(List<Move> moeglichePositionen, PositionCoordinate newPos, boolean ignoreColor) {
+    protected boolean handlePosition(List<Move> moeglichePositionen, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields) {
         PositionType positionType = validatePosition(newPos, ignoreColor);
 
         switch (positionType) {
             case INVALID_POSITON: return true;
             case VALID_POSITION: 
-            	if (!isPositionCheck(newPos)) {
-            	moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + newPos.getCoordinate(), getFigureType(), getPosition(), newPos)); //new Move: ignoriert ob eine Figur geschlagen wird oder nicht!
+            	if (!ignoreAttackedFields) {
+	            	if (!isPositionCheck(newPos)) {
+	            	moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos)); //new Move: ignoriert ob eine Figur geschlagen wird oder nicht!
+	            	}
+            	}
+            	else {
+            		moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos));
             	}
             	return false;
             case OPPOSITE_FIGURE: 
-            	if (!isPositionCheck(newPos)) {
-            		moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + newPos.getCoordinate(), getFigureType(), getPosition(), newPos));
+            	if (!ignoreAttackedFields) {
+            		if (!isPositionCheck(newPos)) {
+            			String hit = (isColorWhite() != getSurface().getFigureColorAtCoordinate(newPos))? "x":"";
+            			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), getPosition(), newPos, (hit == "x")? true : false));
+            		}
+            	}
+            	else {
+            		String hit = (isColorWhite() != getSurface().getFigureColorAtCoordinate(newPos))? "x":"";
+        			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), getPosition(), newPos, (hit == "x")? true : false));
             	}
             	return true;
             default: throw new IllegalArgumentException("Ungültige Position: " + positionType);

@@ -13,6 +13,10 @@ public class PositionCoordinate implements Position{
     public String getCoordinate() {
         return Position.getCoordinate(this.col, this.row);
     }
+    public String getCoordinateB() {
+        return Position.getCoordinateB(this.col, this.row);
+    }
+    
 
     public PositionCoordinate getCoordinate(String input){
         return Position.getCoordinate(input);

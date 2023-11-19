@@ -22,19 +22,20 @@ public class Pawn extends Figure {
     	return "P";
     }
     
-    protected boolean hitLogic(List<Move> moeglichePositionen, Vektor vekt1, PositionCoordinate newPos, boolean ignoreColor) {
+    @Override
+    protected boolean hitLogic(List<Move> moeglichePositionen, Vektor vekt1, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields) {
 		boolean stop = false;
 		if (newPos.col >= 0 && newPos.col < 8 && newPos.row >= 0 && newPos.row < 8) {
 			if (!vekt1.canHit()) {
 				if (getSurface().getFigureAtCoordinate(newPos) == null) {
-					stop = handlePosition(moeglichePositionen, newPos, ignoreColor);
+					stop = handlePosition(moeglichePositionen, newPos, ignoreColor, false);
 				}
 			}
 			else {
 				Schachbrett surf = getSurface();
 				Figure fig = surf.getFigureAtCoordinate(newPos);
 				if (fig != null) {
-					stop = handlePosition(moeglichePositionen, newPos, ignoreColor);
+					stop = handlePosition(moeglichePositionen, newPos, ignoreColor, false);
 				}
 			}
 		}
@@ -47,7 +48,7 @@ public class Pawn extends Figure {
         
         //Bauernumwandlung?
         for (int i=0; i < moves.size(); i++) {
-        	if (moves.get(i).getLastPosition().getRow() == 7 && (moves.get(i).getPawnConversion().equals("") || moves.get(i).getPawnConversion().equals(null))) {
+        	if ((moves.get(i).getLastPosition().getRow() == 7 || moves.get(i).getLastPosition().getRow() == 0) && (moves.get(i).getPawnConversion().equals("") || moves.get(i).getPawnConversion().equals(null))) {
         		Move move = moves.get(i);
         		moves.remove(i);
         		moves.add(editMovePawnConversion(move, "Q"));
@@ -65,7 +66,7 @@ public class Pawn extends Figure {
             Vektor vekt = getZuege().get(0).getScaleableVektor();
             newPos = this.aktuellePositionCoordinate.addVektor(vekt.scaleVektor(2));
             if (validatePosition(newPos, ignoreColor) != PositionType.INVALID_POSITON) {
-                moves.add(new Move(getFigureType() + getPosition().getCoordinate() + newPos.getCoordinate(), getFigureType(), getPosition(), newPos));
+                moves.add(new Move(getFigureType() + getPosition().getCoordinate() + newPos.getCoordinate(), getFigureType(), getPosition(), newPos, false, false, true, ""));
             }
         }
         //ente pasente
@@ -103,7 +104,7 @@ public class Pawn extends Figure {
 		}
 		else {
 		    newPos = aktuellePositionCoordinate.addVektor((new Vektor(-1, color)));
-		    moves.add(new Move(getFigureType() + getPosition().getCoordinate() + "x" + newPos.getCoordinate() + "en", getFigureType(), getPosition(), newPos, true, true, false, null));
+		    moves.add(new Move(getFigureType() + getPosition().getCoordinate() + "x" + newPos.getCoordinate() + "en", getFigureType(), isColorWhite(), getPosition(), newPos, true, true, false, null));
 		}
 		return moves;
 	}
