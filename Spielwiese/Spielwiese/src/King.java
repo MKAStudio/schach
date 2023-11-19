@@ -148,12 +148,12 @@ public class King extends Figure {
             	if (!ignoreAttackedFields) {
             		if (!isPositionCheck(newPos)) {
             			String hit = (isColorWhite() != getSurface().getFigureColorAtCoordinate(newPos))? "x":"";
-            			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), getPosition(), newPos, (hit == "x")? true : false));
+            			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos, (hit == "x")? true : false));
             		}
             	}
             	else {
             		String hit = (isColorWhite() != getSurface().getFigureColorAtCoordinate(newPos))? "x":"";
-        			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), getPosition(), newPos, (hit == "x")? true : false));
+        			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos, (hit == "x")? true : false));
             	}
             	return true;
             default: throw new IllegalArgumentException("Ungültige Position: " + positionType);
