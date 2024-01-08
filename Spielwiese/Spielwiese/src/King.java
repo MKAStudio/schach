@@ -7,13 +7,17 @@ public class King extends Figure {
     }
     
     @Override
-    public List<Move> getMovesWithoutCastling(boolean ignoreColor, boolean ignoreAttackedFields) {
-    	return super.getMoves(ignoreColor, ignoreAttackedFields);
+    public List<Move> getMovesWithoutCastling(boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) {
+    	return super.getMovesWithoutCastling(ignoreColor, ignoreAttackedFields, ignoreKings);
     }
     
     @Override
-    public List<Move> getMoves(boolean ignoreColor, boolean ignoreAttackedFields) {
-		List <Move> moves = super.getMoves(ignoreColor, ignoreAttackedFields);
+    public List<Move> getMoves(boolean ignoreColor) {
+    	return getMoves(ignoreColor, true, false);
+    }
+    @Override
+    public List<Move> getMoves(boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) {
+		List <Move> moves = super.getMoves(ignoreColor, ignoreAttackedFields, ignoreKings);
     	Schachbrett surface = getSurface();
     	if (!isMoved()) {
     		if (isColorWhite()) {
@@ -129,8 +133,8 @@ public class King extends Figure {
     }
     
     @Override
-    protected boolean handlePosition(List<Move> moeglichePositionen, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields) {
-        PositionType positionType = validatePosition(newPos, ignoreColor);
+    protected boolean handlePosition(List<Move> moeglichePositionen, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) {
+        PositionType positionType = validatePosition(newPos, ignoreColor, ignoreKings);
 
         switch (positionType) {
             case INVALID_POSITON: return true;
@@ -156,6 +160,23 @@ public class King extends Figure {
         			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos, (hit == "x")? true : false));
             	}
             	return true;
+            case OPPOSITE_FIGURE_KING:
+            	if (!ignoreAttackedFields) {
+            		if (!isPositionCheck(newPos)) {
+            			String hit = (isColorWhite() != getSurface().getFigureColorAtCoordinate(newPos))? "x":"";
+            			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos, (hit == "x")? true : false));
+            		}
+            	}
+            	else {
+            		String hit = (isColorWhite() != getSurface().getFigureColorAtCoordinate(newPos))? "x":"";
+        			moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos, (hit == "x")? true : false));
+            	}
+            	if (ignoreKings) {
+            		return false;
+            	}
+            	else {
+            		return true;
+            	}
             default: throw new IllegalArgumentException("Ungültige Position: " + positionType);
         }
     }
@@ -174,7 +195,7 @@ public class King extends Figure {
     }
     
     public boolean isPositionCheck(PositionCoordinate position) {
-    	List <PositionCoordinate> attackedFields = getSurface().getAttackedFields(this, isColorWhite());
+    	List <PositionCoordinate> attackedFields = getSurface().getAttackedFields(this, isColorWhite(), true);
     	if (attackedFields.contains(position)) {
     		return true;
     	}

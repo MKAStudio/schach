@@ -23,19 +23,19 @@ public class Pawn extends Figure {
     }
     
     @Override
-    protected boolean hitLogic(List<Move> moeglichePositionen, Vektor vekt1, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields) {
+    protected boolean hitLogic(List<Move> moeglichePositionen, Vektor vekt1, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) {
 		boolean stop = false;
 		if (newPos.col >= 0 && newPos.col < 8 && newPos.row >= 0 && newPos.row < 8) {
 			if (!vekt1.canHit()) {
 				if (getSurface().getFigureAtCoordinate(newPos) == null) {
-					stop = handlePosition(moeglichePositionen, newPos, ignoreColor, false);
+					stop = handlePosition(moeglichePositionen, newPos, ignoreColor, false, ignoreKings);
 				}
 			}
 			else {
 				Schachbrett surf = getSurface();
 				Figure fig = surf.getFigureAtCoordinate(newPos);
 				if (fig != null) {
-					stop = handlePosition(moeglichePositionen, newPos, ignoreColor, false);
+					stop = handlePosition(moeglichePositionen, newPos, ignoreColor, false, ignoreKings);
 				}
 			}
 		}
@@ -44,7 +44,12 @@ public class Pawn extends Figure {
 
     @Override
     public List<Move> getMoves(boolean ignoreColor) {
-        List<Move> moves = super.getMoves(ignoreColor);
+    	return getMoves(ignoreColor, true, false);
+    }
+    
+    @Override
+    public List<Move> getMoves(boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) {
+        List<Move> moves = super.getMoves(ignoreColor, ignoreAttackedFields, ignoreKings);
         
         //Bauernumwandlung?
         for (int i=0; i < moves.size(); i++) {
@@ -65,7 +70,7 @@ public class Pawn extends Figure {
         	System.out.println(aktuellePositionCoordinate.getRow() + ", " + getBaseRow());
             Vektor vekt = getZuege().get(0).getScaleableVektor();
             newPos = this.aktuellePositionCoordinate.addVektor(vekt.scaleVektor(2));
-            if (validatePosition(newPos, ignoreColor) != PositionType.INVALID_POSITON) {
+            if (validatePosition(newPos, ignoreColor, ignoreKings) != PositionType.INVALID_POSITON) {
                 moves.add(new Move(getFigureType() + getPosition().getCoordinate() + newPos.getCoordinate(), getFigureType(), getPosition(), newPos, false, false, true, ""));
             }
         }

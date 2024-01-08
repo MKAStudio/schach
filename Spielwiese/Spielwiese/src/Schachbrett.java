@@ -257,17 +257,17 @@ public class Schachbrett {
         	figures.add(new Move("+WP" + Position.getCoordinate(new PositionCoordinate(i,1)), "P", true, new PositionCoordinate(i, 1)));
     	}
     	//Black
-    	figures.add(new Move("+WRA1", "R", false, new PositionCoordinate(0, 7)));
-    	figures.add(new Move("+WNB1", "N", false, new PositionCoordinate(1, 7)));
-    	figures.add(new Move("+WBC1", "B", false, new PositionCoordinate(2, 7)));
-    	figures.add(new Move("+WQD1", "Q", false, new PositionCoordinate(3, 7)));
-    	figures.add(new Move("+WKE1", "K", false, new PositionCoordinate(4, 7)));
-    	figures.add(new Move("+WBF1", "B", false, new PositionCoordinate(5, 7)));
-    	figures.add(new Move("+WNG1", "N", false, new PositionCoordinate(6, 7)));
+    	figures.add(new Move("+BRA1", "R", false, new PositionCoordinate(0, 7)));
+    	figures.add(new Move("+BNB1", "N", false, new PositionCoordinate(1, 7)));
+    	figures.add(new Move("+BBC1", "B", false, new PositionCoordinate(2, 7)));
+    	figures.add(new Move("+BQD1", "Q", false, new PositionCoordinate(3, 7)));
+    	figures.add(new Move("+BKE1", "K", false, new PositionCoordinate(4, 7)));
+    	figures.add(new Move("+BBF1", "B", false, new PositionCoordinate(5, 7)));
+    	figures.add(new Move("+BNG1", "N", false, new PositionCoordinate(6, 7)));
     	figures.add(new Move("+WRH1", "R", false, new PositionCoordinate(7, 7)));
     	
     	for (int i = 0; i < 8; i++) {
-        	figures.add(new Move("+WP" + Position.getCoordinate(new PositionCoordinate(i,6)), "P", false, new PositionCoordinate(i, 6)));
+        	figures.add(new Move("+BP" + Position.getCoordinate(new PositionCoordinate(i,6)), "P", false, new PositionCoordinate(i, 6)));
     	}
     	
     	setFigures(figures);
@@ -276,17 +276,22 @@ public class Schachbrett {
     }
     
     public List<PositionCoordinate> getAttackedFields(Figure baseFigure, boolean isWhite) {
+    	return getAttackedFields(baseFigure, isWhite, false);
+    }
+    
+    public List<PositionCoordinate> getAttackedFields(Figure baseFigure, boolean isWhite, boolean ignoreKing) {
     	List<PositionCoordinate> fields = new ArrayList();
+    	//Ideen ignore King: itterrieren über schachbrett.copy[][] ohne Kings, ändern von getMoves
     	for (int x=0; x < 8; x++) {
     		for (int y = 0; y < 8; y++) {
     			Figure figure = schachbrett[x][y];
     			if (figure != null && figure != baseFigure && figure.isColorWhite() != isWhite) {
     				List<Move> moves;
     				if (figure.getFigureType() == "K") {
-    					moves = figure.getMovesWithoutCastling(true, true);
+    					moves = figure.getMovesWithoutCastling(true, true, true);
     				}
     				else {
-    					moves = figure.getMoves(true); //Ruft Alle Figuren auf, bei getCheck auch den König!!!!!
+    					moves = figure.getMoves(true, false, true); //Ruft Alle Figuren auf, bei getCheck auch den König!!!!!
     				}
     				for (Move move: moves) {
     					PositionCoordinate field = move.getLastPosition(); 

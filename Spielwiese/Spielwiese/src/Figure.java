@@ -32,15 +32,15 @@ public abstract class Figure {
     
     abstract public String getUnicodeSymbol();
     
-    public List<Move> getMovesWithoutCastling(boolean ignoreColor, boolean ignoreAttackedFields) {
+    public List<Move> getMovesWithoutCastling(boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) {
     	//Wird für getAttackedField benötigt, damit sich die Könige nicht zur Rochadenprüfung gegenseitig Rekursiv aufrufen.
     	//(Eigentlich nur King!!!!!)
-    	return getMoves(ignoreColor, ignoreAttackedFields);
+    	return getMoves(ignoreColor, ignoreAttackedFields, ignoreKings);
     }
     public List<Move> getMoves(boolean ignoreColor) {
-    	return getMoves(ignoreColor, true);
+    	return getMoves(ignoreColor, true, false);
     }
-    public List<Move> getMoves(boolean ignoreColor, boolean ignoreAttackedFields) {
+    public List<Move> getMoves(boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) {
         //gibt alle moeglichen Zuege aus, die nicht außerhalb des Feldes liegen.
         List<Move> moeglichePositionen = new ArrayList();
 
@@ -50,14 +50,14 @@ public abstract class Figure {
                 boolean stop = false;
                 for (int a=1; a<8 && !stop; a++) {
                     PositionCoordinate newPos = this.aktuellePositionCoordinate.addVektor(vekt1.scaleVektor(a));
-                    stop = hitLogic(moeglichePositionen, vekt1, newPos, ignoreColor, ignoreAttackedFields);
+                    stop = hitLogic(moeglichePositionen, vekt1, newPos, ignoreColor, ignoreAttackedFields, ignoreKings);
                 }
             }
             else {
                 PositionCoordinate newPos = this.aktuellePositionCoordinate.addVektor(vekt1);
                 //Gueltigkeit des Zuges Prüfen
                 //liegt das Zielfeld ausserhalb des Spielfeldes?
-                hitLogic(moeglichePositionen, vekt1, newPos, ignoreColor, ignoreAttackedFields);
+                hitLogic(moeglichePositionen, vekt1, newPos, ignoreColor, ignoreAttackedFields, ignoreKings);
             }
         }
         return moeglichePositionen;
@@ -68,19 +68,29 @@ public abstract class Figure {
 	 * @param vekt1
 	 * @param newPos
 	 */
-	protected boolean hitLogic(List<Move> moeglichePositionen, Vektor vekt1, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields) {
+	protected boolean hitLogic(List<Move> moeglichePositionen, Vektor vekt1, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) {
 		boolean stop = false;
-		stop = handlePosition(moeglichePositionen, newPos, ignoreColor, ignoreAttackedFields);
+		stop = handlePosition(moeglichePositionen, newPos, ignoreColor, ignoreAttackedFields, ignoreKings);
 		return stop;
 	}
 
-    protected boolean handlePosition(List<Move> moeglichePositionen, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields) { //ignoreAttackedFields: Used for @Override Function of King
-        PositionType positionType = validatePosition(newPos, ignoreColor);
+    protected boolean handlePosition(List<Move> moeglichePositionen, PositionCoordinate newPos, boolean ignoreColor, boolean ignoreAttackedFields, boolean ignoreKings) { //ignoreAttackedFields: Used for @Override Function of King
+        PositionType positionType = validatePosition(newPos, ignoreColor, ignoreKings);
         switch (positionType) {
             case INVALID_POSITON: return true;
             case VALID_POSITION: moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos)); return false; //new Move: ignoriert ob eine Figur geschlagen wird oder nicht!
             case OPPOSITE_FIGURE: String hit = (isColorWhite() != surface.getFigureColorAtCoordinate(newPos))? "x":"";
             	moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos, (hit == "x")? true:false)); return true;
+            case OPPOSITE_FIGURE_KING: 
+            	hit = (isColorWhite() != surface.getFigureColorAtCoordinate(newPos))? "x":"";
+            	moeglichePositionen.add(new Move(getFigureType() + getPosition().getCoordinate() + hit + newPos.getCoordinate(), getFigureType(), isColorWhite(), getPosition(), newPos, (hit == "x")? true:false));
+            	if (ignoreKings) {
+            		return false;
+            	}
+            	else {
+            		return true;
+            	}
+            	
             default: throw new IllegalArgumentException("Ungültige Position: " + positionType);
         }
     }
@@ -94,20 +104,30 @@ public abstract class Figure {
     	return this.aktuellePositionCoordinate;
     }
 
-    protected PositionType validatePosition(PositionCoordinate pos, boolean ignoreColor) {
+    protected PositionType validatePosition(PositionCoordinate pos, boolean ignoreColor, boolean ignoreKings) {
         boolean valid = pos.col >= 0 && pos.col < 8 && pos.row >= 0 && pos.row < 8;
         System.out.println(pos);
         if (valid) {
             if (surface.getCollision(pos)) {
             	if (ignoreColor) {
-            		return PositionType.OPPOSITE_FIGURE;
+            		if (ignoreKings && surface.getFigureAtCoordinate(pos).getFigureType() == "K") {
+            			return PositionType.OPPOSITE_FIGURE_KING;
+            		}
+            		else {
+            			return PositionType.OPPOSITE_FIGURE;
+            		}
             	}
             	else {
 	                if (surface.getFigureColorAtCoordinate(pos) == isColorWhite) {
 	                    return PositionType.INVALID_POSITON;
 	                }
 	                else {
-	                    return PositionType.OPPOSITE_FIGURE;
+	                	if (ignoreKings && surface.getFigureAtCoordinate(pos).getFigureType() == "K") {
+	            			return PositionType.OPPOSITE_FIGURE_KING;
+	            		}
+	            		else {
+	            			return PositionType.OPPOSITE_FIGURE;
+	            		}
 	                }
             	}
             }
@@ -123,7 +143,8 @@ public abstract class Figure {
     public enum PositionType {
         INVALID_POSITON, 
         VALID_POSITION,
-        OPPOSITE_FIGURE;
+        OPPOSITE_FIGURE,
+        OPPOSITE_FIGURE_KING;
     }
 
     public String getText() {

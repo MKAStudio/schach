@@ -75,21 +75,24 @@ public class SchachbrettGUI extends JPanel {
                 Figure figure = schachbrett.getFigure(x, y);
                 if (figure != null) {
                     if (figure.isColorWhite()) {
-                        g.setColor(new Color(255, 230, 150));
+                        g.setColor(new Color(250, 44, 15)); //255, 230, 150
                     }
                     else {
-                        g.setColor(new Color(67, 38,22));
+                        g.setColor(new Color(58, 232, 133)); //67, 38, 22
 
                     }
                     //g.setFont(new Font("Arial", Font.BOLD,(int) cellSize));
                     Font font = new Font("Misc Symbols", Font.BOLD,(int) cellSize);
                     //Font font = new Font("FreeSerif", Font.BOLD,(int) cellSize);
 //                    drawCenteredString(g, figure.getText(), new Rectangle(cellSize * y, cellSize * x, cellSize, cellSize), font );
-                    drawCenteredString(g, figure.getUnicodeSymbol(), new Rectangle(cellSize * y, cellSize * x, cellSize, cellSize), font );
+                    drawCenteredString(g, figure.getUnicodeSymbol(), new Rectangle(cellSize*7-cellSize * y, cellSize * x, cellSize, cellSize), font );
                 }
                 if (moveCoordinates.contains(new PositionCoordinate(y,x))) {
                     g.setColor(Color.blue);
-                    g.fillOval(cellSize * y + (int)(cellSize /2 - (int)(cellSize /3)/2), cellSize * x + (int)(cellSize /2 - (int)(cellSize /3)/2), (int)(cellSize /3), (int)(cellSize /3));
+                    Font font = new Font("Misc Symbols", Font.BOLD, (int) cellSize*5);
+                    g.setFont(font);
+                    //drawCenteredString(g, ".", new Rectangle(cellSize * y, cellSize * x, cellSize, cellSize), font);
+                    g.fillOval(cellSize*7-(cellSize * y) + (int)(cellSize /2 - (int)(cellSize /3)/2), cellSize * x + (int)(cellSize /2 - (int)(cellSize /3)/2), (int)(cellSize /3), (int)(cellSize /3));
 //                    System.out.println("Oval " + Position.getCoordinate(y,x) + " Drawn");
                 }
             }
@@ -124,10 +127,10 @@ public class SchachbrettGUI extends JPanel {
     private Color toogleColor(int x) {
         Color feldFarbe;
         if (x % 2 == 0) {
-            feldFarbe = Color.black;
+            feldFarbe = Color.white;
         }
         else {
-            feldFarbe = Color.white;
+            feldFarbe = Color.black;
         }
         return feldFarbe;
     }
